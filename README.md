@@ -25,6 +25,13 @@ Ouvre simplement `index.html` dans un navigateur, puis clique sur **Lancer l'ani
 La page interactive « Charlène mon amour » (le cœur qui bat + la Roue de l'Amour) est conservée
 dans `coeur.html` : `https://bastien313.github.io/chacha2/coeur.html`.
 
+## La vraie vie de Raphaël
+
+Deuxième dessin animé (même moteur, même principe) : un électronicien au visage qui verdit, des toilettes
+qui crient, une super turbine imaginaire… puis une vraie turbine bien moins glorieuse.
+Il est dans le dossier `raph/` : `https://bastien313.github.io/chacha2/raph/`.
+Astuce de test : `raph/index.html?t=60` affiche directement l'image à la seconde 60.
+
 ## Personnaliser
 
 Dans `index.html` :
