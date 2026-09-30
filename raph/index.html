@@ -596,26 +596,26 @@ function sAtelier(t,lt){
   bgAtelier({});
   c.save();c.translate(790,GY);drawBench(150);scope(14,-102,t);pcb(90,-102);c.restore();
   const R=22,TP=Math.PI;let x,A=0,Aroll=0;
-  if(lt<2.6)x=lerp(-60,230,lt/2.6);else if(lt<4.6)x=lerp(230,300,seg(lt,2.6,4.6));
-  else{Aroll=4.5*TP*ease(seg(lt,4.6,9.0));x=300+R*Aroll}
-  if(lt>=4.6&&lt<9)A=Aroll;
-  else if(lt>=9&&lt<10.7)A=4.5*TP+Math.sin(lt*9)*.06;
-  else if(lt>=10.7&&lt<12.3)A=4*TP+.5*TP*(1-ease(seg(lt,10.7,12.3)));
-  else if(lt>=12.3)A=4*TP;
-  if(lt>=10.7)x=300+R*4.5*TP;
+  if(lt<3.4)x=lerp(-60,520,lt/3.4);else if(lt<4.6)x=lerp(520,600,seg(lt,3.4,4.6));
+  else{Aroll=4.5*TP*ease(seg(lt,4.6,9.0));x=600-R*Aroll}
+  if(lt>=4.6&&lt<9)A=-Aroll;
+  else if(lt>=9&&lt<10.7)A=-4.5*TP+Math.sin(lt*9)*.06;
+  else if(lt>=10.7&&lt<12.3)A=-(4*TP+.5*TP*(1-ease(seg(lt,10.7,12.3))));
+  else if(lt>=12.3)A=-4*TP;
+  if(lt>=10.7)x=600-R*4.5*TP;
   const rolling=lt>=4.6&&lt<12.3,running=lt>=12.7;
-  if(running)x=lerp(300+R*4.5*TP,1010,Math.pow(seg(lt,12.7,14),1.4));
+  if(running)x=lerp(600-R*4.5*TP,1010,Math.pow(seg(lt,12.7,14),1.4));
   const py=GY-(70*Math.abs(Math.cos(A))+20*Math.abs(Math.sin(A))),feet=py+70;
   const k=rolling?.45*(lt<10.7?1:1-ease(seg(lt,10.7,12.3))):0;
   const hipK=lerp(-66,-38,k);
   const P=RB({x,y:feet,dir:1,green:1,k,lean:rolling?0:.14+Math.sin(lt*3)*.05,mouth:2,eyes:'squint',brow:1,
     t1:[x+12,feet+hipK-16],t2:[x+14,feet+hipK-8]});
-  if(lt<2.6||running)P.ph=x*(running?.1:.072);
+  if(lt<3.4||running)P.ph=x*(running?.1:.072);
   else if(lt<4.6){P.ph=x*.072;P.lean=.2+Math.sin(lt*5)*.08}
   if(rolling){P.mouth=(lt*4%1)<.5?1:2;P.eyes=(lt*3%1)<.75?'squint':'x'}
   if(lt>=12.3&&!running){P.eyes='wide';P.mouth=3;P.k=0}
   // poussière sous la roulade
-  if(lt>4.6&&lt<9.4)for(let i=0;i<4;i++){const u=mod(lt*2+i/4,1);c.globalAlpha=(1-u)*.45;circ(x-24-u*40,GY+6-u*10,6+u*10,'#d8d2c6');c.globalAlpha=1}
+  if(lt>4.6&&lt<9.4)for(let i=0;i<4;i++){const u=mod(lt*2+i/4,1);c.globalAlpha=(1-u)*.45;circ(x+24+u*40,GY+6-u*10,6+u*10,'#d8d2c6');c.globalAlpha=1}
   c.save();c.translate(x,py);c.rotate(A);c.translate(-x,-py);
   const o=person(P);
   c.restore();
@@ -623,7 +623,7 @@ function sAtelier(t,lt){
   [[4.9,'ahahah…'],[5.9,'AHAHAH !'],[6.9,'ahah… ahah'],[7.9,'AHAHAHAH !'],[9.2,'ahahah…'],[9.9,'aïe… ahah']].forEach((a,i)=>{
     popL(a[1],x+(i%2?60:-60),py-95-(i%3)*12,t,lt,a[0],1.0,{fs:34+(i%2)*8,col:'#ffd0a0',stroke:'#3a1a12',rot:i%2?.08:-.08})});
   bubble(['Vite… aux toilettes !'],o.hx+10,o.hy-70,o.hx+6,o.hy-30,{a:bub(lt,12.0,13.4)});
-  if(lt>2.8&&lt<4.4)popL('Ouille…',x+50,py-96,t,lt,2.8,1.3,{fs:30,col:'#fff',stroke:'#3a1a12',rot:-.05});
+  if(lt>3.0&&lt<4.5)popL('Ouille…',x+50,py-96,t,lt,3.0,1.3,{fs:30,col:'#fff',stroke:'#3a1a12',rot:-.05});
 }
 
 /* ---------- SCÈNE 3 : les toilettes qui crient ---------- */
@@ -702,25 +702,54 @@ function sWC(t,lt){
 function bulb(x,y,s,a){c.save();c.globalAlpha=a;c.translate(x,y);c.scale(s,s);
   c.strokeStyle='#ffd166';c.lineWidth=3;for(let i=0;i<8;i++){const an=i*Math.PI/4+(Math.PI/8);lin(Math.cos(an)*20,Math.sin(an)*20,Math.cos(an)*30,Math.sin(an)*30,3,'#ffd166')}
   circ(0,0,15,'#fff3a0');circ(0,0,15,'rgba(255,209,102,.5)');c.strokeStyle='#c9a020';c.lineWidth=2;c.beginPath();c.arc(0,0,15,0,7);c.stroke();fillRR(-7,13,14,10,2,'#8a909a');c.restore()}
+function placoWall(x0,hf,st,bd,col,door){                     // vraie cloison en plaque de plâtre, vue en perspective
+  const fx=x0,fy=346,bx=x0+52,by=262,H1=hf*col,H2=hf*.62*col;if(H1<3)return;
+  const P=(u,v)=>[lerp(fx,bx,u),lerp(fy,by,u)-v*lerp(H1,H2,u)];
+  const L=(p,q,w,co)=>{c.strokeStyle=co;c.lineWidth=w;c.lineCap='butt';c.beginPath();c.moveTo(p[0],p[1]);c.lineTo(q[0],q[1]);c.stroke()};
+  // ossature métallique : rails + montants
+  if(bd<1){
+    L(P(0,0),P(1,0),4,'#8f9aa8');
+    for(let i=0;i<=4;i++)L(P(i/4,0),P(i/4,st),3,'#aab4c1');
+    if(st>=1)L(P(0,1),P(1,1),4,'#8f9aa8')}
+  if(bd>0){
+    const face=[P(0,0),P(0,bd),P(1,bd),P(1,0)];
+    c.fillStyle=grad(fx,0,bx,0,[[0,'#f1ecdf'],[1,'#d9d3c3']]);c.beginPath();face.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.closePath();c.fill();
+    // joints de plaques + bande à joint + vis
+    if(bd>.98){
+      L(P(.5,0),P(.5,1),5,'rgba(255,255,255,.55)');L(P(.5,0),P(.5,1),1.2,'rgba(120,112,95,.6)');
+      for(let i=1;i<9;i++){const v=i/9;[.06,.44,.56,.94].forEach(u=>{const p=P(u,v);c.fillStyle='rgba(110,104,90,.55)';c.fillRect(p[0]-1,p[1]-1,2,2)})}}
+    // plinthe
+    const pl=Math.min(bd,.07);c.fillStyle='#c6bfae';c.beginPath();[P(0,0),P(0,pl),P(1,pl),P(1,0)].forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.closePath();c.fill();
+    // porte
+    if(door&&bd>.98){const d=[P(.3,0),P(.3,.62),P(.7,.68),P(.7,0)];c.fillStyle='#4b4f5a';c.beginPath();d.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.closePath();c.fill();c.strokeStyle='#c9ad7a';c.lineWidth=3;c.stroke()}
+    // contour + épaisseur de la tranche
+    c.strokeStyle='#8a8577';c.lineWidth=1.6;c.lineJoin='round';c.beginPath();face.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.closePath();c.stroke();
+    const e0=P(0,0),e1=P(0,bd);c.fillStyle='#fbf8ef';c.beginPath();c.moveTo(e0[0],e0[1]);c.lineTo(e1[0],e1[1]);c.lineTo(e1[0]-8,e1[1]);c.lineTo(e0[0]-8,e0[1]);c.closePath();c.fill();c.stroke()}
+}
 function cloisons(lt){
-  c.fillStyle='#e9f1f7';c.fillRect(300,10,660,330);
-  c.fillStyle='#8f9db0';c.fillRect(300,250,660,110);c.fillStyle='rgba(0,0,0,.12)';for(let x=300;x<960;x+=60)c.fillRect(x,250,2,110);
-  windowFrame(380,50,110,80,'#8fd0ff','#e6f6ff',null);
-  const cols=['#7ec8e3','#ffd166','#ff8fa3','#b8e986','#c5a3ff'];
-  const row=(r,tiny)=>{const n=r?10:14,by=r?326:282,hh=r?110:76,ww=r?24:16;
-    for(let i=0;i<n;i++){const x=(r?390:350)+i*(r?58:44),t0=2.8+(r?i*.13+.5:i*.1),u=seg(lt,t0,t0+.5),col=1-ease(seg(lt,8.6+i*.05+(r?.1:0),9.4+i*.05));
-      const h=hh*ease(u)*(1+.12*Math.sin(u*Math.PI))*col;if(h<1)continue;
-      fillRR(x,by-h,ww,h,3,cols[(i+r)%5]);fillRR(x+ww-4,by-h,4,h,2,'rgba(0,0,0,.18)');fillRR(x,by-h,ww,5,3,'rgba(255,255,255,.5)')}};
-  row(0);
-  // le petit Raphaël, enfermé entre les cloisons
-  const tx=640+Math.sin(lt*1.1)*70;
-  if(lt>3.4&&lt<9.6)person(RB({x:tx,y:308,s:.44,dir:Math.cos(lt*1.1)>0?1:-1,ph:tx*.12,mouth:3,eyes:'wide'}));
-  row(1);
-  const tk=seg(lt,3.6,4.1);
-  if(tk>0&&lt<8.6){c.save();c.translate(650,104);c.scale(ease(tk),ease(tk));c.font='34px Bangers, Impact, sans-serif';c.textAlign='center';c.textBaseline='middle';c.lineJoin='round';c.lineWidth=9;c.strokeStyle='#2a0f2e';c.strokeText('DES CLOISONS PARTOUT !',0,0);c.fillStyle='#ffd166';c.fillText('DES CLOISONS PARTOUT !',0,0);c.restore()}
+  c.save();c.translate(0,-26);
+  // l'atelier imaginé : mur du fond, fenêtre, sol
+  c.fillStyle='#e6eef4';c.fillRect(280,0,700,262);
+  c.fillStyle='#8f9db0';c.fillRect(280,262,700,120);c.fillStyle='rgba(0,0,0,.12)';for(let x=280;x<980;x+=60)c.fillRect(x,262,2,120);c.fillRect(280,300,700,2);c.fillRect(280,338,700,2);
+  windowFrame(400,50,120,90,'#8fd0ff','#e6f6ff',null);
+  fillRR(760,60,110,84,4,'#d2b98f');lin(775,84,850,84,3,'#999');lin(775,100,835,100,3,'#999');lin(775,116,845,116,3,'#999');
+  const xs=[340,440,540,640,740,840];
+  xs.forEach((x0,i)=>{
+    const t0=2.6+i*.5,u=lt-t0,col=1-ease(seg(lt,8.6+i*.06,9.4+i*.06));
+    // le mobilier de la case (apparaît après la pose)
+    const ck=ease(seg(u,1.3,1.8))*col;
+    if(ck>.02&&i<5){const bx=x0+64,by=326;c.save();c.translate(bx,by);c.scale(1,ck);
+      fillRR(0,-26,46,6,2,'#c4915a');lin(4,-20,4,0,3,'#4d5666');lin(42,-20,42,0,3,'#4d5666');fillRR(8,-44,20,18,3,'#3a4048');fillRR(10,-42,16,11,2,'#0d2a1f');lin(10,-36,26,-36,1.5,'#3ad17a');fillRR(32,-32,10,6,1,'#2a8a4e');c.restore()}
+    placoWall(x0,150,ease(seg(u,0,.5)),ease(seg(u,.5,1.2)),col,i===1||i===3);
+    if(col<.95&&col>0)for(let k=0;k<4;k++){const v=mod(lt*2+k/4,1);c.globalAlpha=(1-v)*.5;circ(x0+10+rnd(i*4+k)*60,340-v*50,8+v*14,'#ece6da');c.globalAlpha=1}
+  });
+  // le petit Raphaël se promène dans son atelier cloisonné
+  const tx=560+Math.sin(lt*1.1)*150;
+  if(lt>4.6&&lt<9.6)person(RB({x:tx,y:366,s:.42,dir:Math.cos(lt*1.1)>0?1:-1,ph:tx*.12,mouth:4,eyes:'open'}));
   // « non ! »
   const xk=seg(lt,8.0,8.6);
-  if(xk>0){const a=lerp(0,1,ease(xk));lin(470,90,lerp(470,810,a),lerp(90,290,a),18,'#e5262b');lin(810,90,lerp(810,470,a),lerp(90,290,a),18,'#e5262b')}
+  if(xk>0){const a=ease(xk);lin(470,90,lerp(470,810,a),lerp(90,290,a),18,'#e5262b');lin(810,90,lerp(810,470,a),lerp(90,290,a),18,'#e5262b')}
+  c.restore();
 }
 function epic(u,t){
   const cx=480,cy=282;
@@ -790,6 +819,7 @@ function sImagine(t,lt){
     c.restore()}
   if(lt>=11.2&&lt<14.6){bulb(o.hx+8,o.hy-64,ease(seg(lt,11.2,11.5))*1.1,1-ease(seg(lt,14.0,14.6)))}
   if(lt>=8&&lt<9.4)popL('NON !',560,120,t,lt,8.2,1.2,{fs:70,col:'#ff5a5a',stroke:'#fff',rot:-.08});
+  bubble(['Et si je mettais des','cloisons partout ?'],o.hx+120,o.hy-96,o.hx+20,o.hy-40,{fs:19,a:bub(lt,2.8,5.4)});
   bubble(['Mmh… non, bof…'],o.hx+110,o.hy-90,o.hx+20,o.hy-40,{a:bub(lt,9.8,11.4)});
   bubble(['Et si je construisais…','une SUPER TURBINE ?!'],o.hx+150,o.hy-90,o.hx+20,o.hy-40,{fs:20,a:bub(lt,11.6,14.2)});
   if(lt>=22.9){for(let i=0;i<8;i++){const u=seg(lt,22.9,24);c.globalAlpha=1-u;star(o.hx+Math.cos(i*.8)*(20+u*80),o.hy+Math.sin(i*.8)*(20+u*60),8,'#ffd166',i+lt*3);c.globalAlpha=1}}
@@ -928,19 +958,13 @@ function sRetourR(t,lt){
 
 /* ---------- montage ---------- */
 const SCENES=[
- {a:0,b:14,chip:'08h00 · Direction le boulot',draw:sTrajet},
- {a:14,b:28,chip:'08h40 · Arrivée à l\'atelier',draw:sAtelier},
- {a:28,b:43,chip:'08h50 · Petite urgence',draw:sWC},
- {a:43,b:67,chip:'09h30 · Séance de réflexion',draw:sImagine},
- {a:67,b:90,chip:'Quelques heures plus tard…',draw:sBuild},
- {a:90,b:9999,chip:'17h30 · Retour à la maison',draw:sRetourR}];
-const CAPTIONS=[
- [0,2.6,'Raphaël, électronicien, part au travail en voiture.'],[2.6,5.2,'Sur la route, son visage devient petit à petit… vert.'],[5.2,9.8,'« Je me sens bizarre… le bœuf loak loak n\'était pas frais. »'],[9.8,14,'Arrivé au boulot, la main sur le ventre, il file à l\'atelier.'],
- [14,16.6,'Il entre dans l\'atelier…'],[16.6,18.6,'Il marche un peu…'],[18.6,23.4,'…puis il se roule par terre en gémissant : « ahahah… »'],[23.4,26.4,'Il finit par se relever.'],[26.4,28,'Direction : les toilettes !'],
- [28,30.5,'Il fonce vers les toilettes…'],[30.5,33.5,'Il s\'enferme dans la cabine.'],[33.5,37.5,'Les toilettes se secouent… et crient : « YAHHHH ! »'],[37.5,39.2,'Silence. La porte s\'ouvre…'],[39.2,43,'Visage tout neuf : « Ahhh, ça va mieux ! »'],
- [43,45,'Retour à l\'atelier : il se met au travail.'],[45,51,'Dans sa tête : des cloisons partout dans l\'atelier !'],[51,54,'Mmh… finalement non.'],[54,57.5,'Nouvelle idée : construire une super turbine !'],[57.5,65,'Dans son imagination, c\'est un truc de fou !'],[65,67,'Il en a des étoiles plein les yeux.'],
- [67,67.8,'Il se met à la construction.'],[67.8,74.4,'Ça martèle, ça soude, ça visse… et les heures passent.'],[74.4,75,'Ça y est !'],[75,80.4,'Le résultat : tout nul, pas beau du tout. Mais lui est ravi !'],[80.4,86.5,'Puis tout s\'écroule.'],[86.5,90,'Il range ses affaires, un peu dépité.'],
- [90,96.4,'Le soir, Raphaël rentre chez lui, un peu dépité.'],[96.4,99.8,'Demain, il fera peut-être des cloisons…'],[99.8,104,'Il rentre. Fin de la journée.'],[104,9999,'']];
+ {a:0,b:14,draw:sTrajet},
+ {a:14,b:28,draw:sAtelier},
+ {a:28,b:43,draw:sWC},
+ {a:43,b:67,draw:sImagine},
+ {a:67,b:90,draw:sBuild},
+ {a:90,b:9999,draw:sRetourR}];
+const CAPTIONS=[];
 
 let T=0,playing=false,started=false,lastNow=0,evIdx=0,ended=false;
 const $=id=>document.getElementById(id);
